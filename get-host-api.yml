@@ -22,10 +22,8 @@
 
   - name: Get hosts from vCenter
     uri:
-      url: "https://{{secret.hostname}}//rest/vcenter/host"
+      url: "https://{{secret.hostname}}/rest/vcenter/host"
       force_basic_auth: yes
-      method: GET
-      body_format: json
       validate_certs: no
       headers:
-        Cookie: "{{ login.set_cookie }}"
+        Cookie: "{{login.set_cookie}}"
