@@ -27,3 +27,11 @@
       validate_certs: no
       headers:
         Cookie: "{{login.set_cookie}}"
+    register: vchosts
+
+
+
+  - debug:
+      msg: "{{item.name}}"
+    with_items:
+      - "{{vchosts.json.value}}"
