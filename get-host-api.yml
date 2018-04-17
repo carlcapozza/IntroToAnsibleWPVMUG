@@ -1,0 +1,19 @@
+---
+- host: localhost
+
+  tasks:
+  - name: Including Secret Environment Items
+    include_vars:
+      file: secrets.yml
+      name: secret
+
+  - name: vcenter login
+    uri:
+      url: "https://{{secret.host_info.name}}/rest/com/vmware/cis/session"
+      force_basic_auth: yes
+      method: POST
+      user: "{{ secret.creds.name }}"
+      password: "{{ secret.creds.password }}"
+      status_code: 200
+      validate_certs: no
+      register: login
