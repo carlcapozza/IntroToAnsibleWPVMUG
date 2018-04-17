@@ -17,3 +17,10 @@
       status_code: 200
       validate_certs: no
       register: login
+  
+  - name: Get hosts from vCenter 
+      url: "https://{{secret.host_info.name}}//rest/vcenter/host"
+      force_basic_auth: yes
+      method: GET
+      body_format: json
+      body: "{{ lookup ('file','gethosts.json') }}
