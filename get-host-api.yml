@@ -1,15 +1,14 @@
 ---
-- hosts: localhost
+- hosts:
 
   tasks:
   - name: Including Secret Environment Items
     include_vars:
       file: secrets.yml
       name: secret
-  - debug:
-      msg: "{{secret.username}}"
 
   - name: vcenter login
+    delegate_to: localhost
     uri:
       url: "https://{{secret.hostname}}/rest/com/vmware/cis/session"
       force_basic_auth: yes
@@ -21,6 +20,7 @@
     register: login
 
   - name: Get hosts from vCenter
+    delegate_to: localhost
     uri:
       url: "https://{{secret.hostname}}/rest/vcenter/host"
       force_basic_auth: yes
@@ -29,9 +29,15 @@
         Cookie: "{{login.set_cookie}}"
     register: vchosts
 
-
-
-  - debug:
-      msg: "{{item.name}}"
+  - name: Set NTP on all hosts
+    vmware_host_ntp:
+      hostname: "{{secret.hostname}}"
+      username: "{{secret.username}}"
+      password: "{{secret.password}}"
+      esxi_hostname: "{{item.name}}"
+      state: present
+      ntp_servers:
+        - 192.168.1.1
+        - 192.168.1.2
     with_items:
       - "{{vchosts.json.value}}"
