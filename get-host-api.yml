@@ -1,5 +1,5 @@
 ---
-- hosts:
+- hosts: localhost
 
   tasks:
   - name: Including Secret Environment Items
@@ -8,7 +8,6 @@
       name: secret
 
   - name: vcenter login
-    delegate_to: localhost
     uri:
       url: "https://{{secret.hostname}}/rest/com/vmware/cis/session"
       force_basic_auth: yes
@@ -20,7 +19,6 @@
     register: login
 
   - name: Get hosts from vCenter
-    delegate_to: localhost
     uri:
       url: "https://{{secret.hostname}}/rest/vcenter/host"
       force_basic_auth: yes
@@ -29,7 +27,7 @@
         Cookie: "{{login.set_cookie}}"
     register: vchosts
 
-  - name: Set NTP on all hosts
+  - name: Add NTP settings on esxi hosts
     vmware_host_ntp:
       hostname: "{{secret.hostname}}"
       username: "{{secret.username}}"
@@ -37,7 +35,21 @@
       esxi_hostname: "{{item.name}}"
       state: present
       ntp_servers:
-        - 192.168.1.1
-        - 192.168.1.2
+        - 192.168.1.10
+        - 192.168.1.250
+      validate_certs: no
+    with_items:
+      - "{{vchosts.json.value}}"
+
+  - name: Remove old NTP settings on esxi hosts
+    vmware_host_ntp:
+      hostname: "{{secret.hostname}}"
+      username: "{{secret.username}}"
+      password: "{{secret.password}}"
+      esxi_hostname: "{{item.name}}"
+      state: present
+      ntp_servers:
+        - 192.168.1.245
+      validate_certs: no
     with_items:
       - "{{vchosts.json.value}}"
