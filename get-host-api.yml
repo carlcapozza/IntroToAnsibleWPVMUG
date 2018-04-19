@@ -28,7 +28,7 @@
     register: vchosts
 
   - name: Set Syslog Configuration Setting
-    vmware_host_config_manager: 
+    vmware_host_config_manager:
       hostname: "{{secret.hostname}}"
       username: "{{secret.username}}"
       password: "{{secret.password}}"
@@ -47,5 +47,6 @@
       esxi_hostname: "{{item.name}}"
       service_name: vmsyslogd
       state: present
+      validate_certs: no
     with_items:
       - "{{vchosts.json.value}}"
