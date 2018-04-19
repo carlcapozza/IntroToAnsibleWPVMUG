@@ -27,29 +27,25 @@
         Cookie: "{{login.set_cookie}}"
     register: vchosts
 
-  - name: Add NTP settings on esxi hosts
-    vmware_host_ntp:
+  - name: Set Syslog Configuration Setting
+    vmware_host_config_manager: 
       hostname: "{{secret.hostname}}"
       username: "{{secret.username}}"
       password: "{{secret.password}}"
       esxi_hostname: "{{item.name}}"
-      state: present
-      ntp_servers:
-        - 192.168.1.10
-        - 192.168.1.250
+      options:
+          'Syslog.global.logHost': '192.168.1.1'
       validate_certs: no
     with_items:
       - "{{vchosts.json.value}}"
 
-  - name: Remove old NTP settings on esxi hosts
-    vmware_host_ntp:
+  - name: Ensure Syslog Service is running
+    vmware_host_service_manager:
       hostname: "{{secret.hostname}}"
       username: "{{secret.username}}"
       password: "{{secret.password}}"
       esxi_hostname: "{{item.name}}"
+      service_name: vmsyslogd
       state: present
-      ntp_servers:
-        - 192.168.1.245
-      validate_certs: no
     with_items:
       - "{{vchosts.json.value}}"
