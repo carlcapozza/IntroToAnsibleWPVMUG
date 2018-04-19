@@ -7,7 +7,7 @@
       file: secrets.yml
       name: secret
 
-  - name: vcenter login
+  - name: Login in to vCenter and store login information
     uri:
       url: "https://{{secret.hostname}}/rest/com/vmware/cis/session"
       force_basic_auth: yes
@@ -18,7 +18,7 @@
       validate_certs: no
     register: login
 
-  - name: Get hosts from vCenter
+  - name: Get ESXi hosts from vCenter
     uri:
       url: "https://{{secret.hostname}}/rest/vcenter/host"
       force_basic_auth: yes
@@ -27,7 +27,7 @@
         Cookie: "{{login.set_cookie}}"
     register: vchosts
 
-  - name: Set Syslog Configuration Setting
+  - name: Set Syslog Host on ESXi hosts
     vmware_host_config_manager:
       hostname: "{{secret.hostname}}"
       username: "{{secret.username}}"
@@ -39,7 +39,7 @@
     with_items:
       - "{{vchosts.json.value}}"
 
-  - name: Ensure Syslog Service is running
+  - name: Ensure Syslog Service is running on ESXi hosts
     vmware_host_service_manager:
       hostname: "{{secret.hostname}}"
       username: "{{secret.username}}"
